@@ -1,0 +1,43 @@
+
+838. Push Dominoes
+
+class Solution:
+    def pushDominoes(self, dominoes: str) -> str:
+        n = len(dominoes)
+        right_forces = [0] * n
+        left_forces = [0] * n
+
+        # Step 1: Rightward forces from 'R'
+        force = 0
+        for i in range(n):
+            if dominoes[i] == 'R':
+                force = n  # max force
+            elif dominoes[i] == 'L':
+                force = 0  # reset force
+            else:
+                force = max(force - 1, 0)
+            right_forces[i] = force
+
+        # Step 2: Leftward forces from 'L'
+        force = 0
+        for i in range(n - 1, -1, -1):
+            if dominoes[i] == 'L':
+                force = n
+            elif dominoes[i] == 'R':
+                force = 0
+            else:
+                force = max(force - 1, 0)
+            left_forces[i] = force
+
+        # Step 3: Determine final state
+        result = []
+        for i in range(n):
+            if right_forces[i] > left_forces[i]:
+                result.append('R')
+            elif left_forces[i] > right_forces[i]:
+                result.append('L')
+            else:
+                result.append('.')
+
+        return ''.join(result)
+        
