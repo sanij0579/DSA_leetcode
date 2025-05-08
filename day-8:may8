@@ -1,0 +1,30 @@
+3342. Find Minimum Time to Reach Last Room II
+solution :
+from heapq import heappush, heappop
+from typing import List
+
+class Solution:
+    def minTimeToReach(self, moveTime: List[List[int]]) -> int:
+        n, m = len(moveTime), len(moveTime[0])
+        dist = [[float('inf')] * m for _ in range(n)]
+        dist[0][0] = 0
+        pq = [(0, 0, 0, True)]
+        directions = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+        
+        while pq:
+            time, row, col, is_one_second = heappop(pq)
+            if row == n-1 and col == m-1:
+                return time
+            if time > dist[row][col]:
+                continue
+            for dx, dy in directions:
+                new_row, new_col = row + dx, col + dy
+                if 0 <= new_row < n and 0 <= new_col < m:
+                    move_cost = 1 if is_one_second else 2
+                    start_time = max(time, moveTime[new_row][new_col])
+                    arrival_time = start_time + move_cost
+                    if arrival_time < dist[new_row][new_col]:
+                        dist[new_row][new_col] = arrival_time
+                        heappush(pq, (arrival_time, new_row, new_col, not is_one_second))
+        
+        return dist[n-1][m-1]
