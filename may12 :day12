@@ -1,0 +1,24 @@
+2094. Finding 3-Digit Even Numbers
+solution:
+
+
+from typing import List
+from collections import Counter
+
+class Solution:
+    def findEvenNumbers(self, digits: List[int]) -> List[int]:
+        result = set()
+        count = Counter(digits)
+        
+        for i in range(100, 1000):
+            if i % 2 != 0:
+                continue  # skip odd numbers
+            
+            d1, d2, d3 = i // 100, (i // 10) % 10, i % 10
+            needed = Counter([d1, d2, d3])
+            
+            # Check if we have enough of each digit
+            if all(needed[d] <= count[d] for d in needed):
+                result.add(i)
+        
+        return sorted(result)
