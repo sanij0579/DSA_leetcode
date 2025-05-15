@@ -1,0 +1,43 @@
+3337. Total Characters in String After Transformations II
+solution:
+from typing import List
+
+MOD = 10**9 + 7
+
+class Solution:
+    def lengthAfterTransformations(self, s: str, t: int, nums: List[int]) -> int:
+        # Precompute transitions: how many letters each letter grows into in one step
+        transition = [[0] * 26 for _ in range(26)]
+        for i in range(26):
+            for j in range(1, nums[i] + 1):
+                transition[i][(i + j) % 26] += 1
+
+        # Fast exponentiation of transformation matrix
+        def mat_mult(a, b):
+            res = [[0] * 26 for _ in range(26)]
+            for i in range(26):
+                for j in range(26):
+                    for k in range(26):
+                        res[i][j] = (res[i][j] + a[i][k] * b[k][j]) % MOD
+            return res
+
+        def mat_pow(mat, power):
+            res = [[int(i == j) for j in range(26)] for i in range(26)]  # Identity matrix
+            while power:
+                if power % 2:
+                    res = mat_mult(res, mat)
+                mat = mat_mult(mat, mat)
+                power //= 2
+            return res
+
+        # Compute transition^t
+        final_transition = mat_pow(transition, t)
+
+        # Count result
+        result = 0
+        for ch in s:
+            idx = ord(ch) - ord('a')
+            # Sum of all characters this character expands to after t transformations
+            result = (result + sum(final_transition[idx])) % MOD
+
+        return result
