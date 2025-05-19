@@ -1,0 +1,15 @@
+
+3024. Type of Triangle
+solution:
+class Solution:
+    def triangleType(self, nums: List[int]) -> str:
+        a, b, c = nums
+        # Check if triangle is valid
+        if a + b <= c or a + c <= b or b + c <= a:
+            return "none"
+        # Check triangle type
+        if a == b == c:
+            return "equilateral"
+        if a == b or b == c or a == c:
+            return "isosceles"
+        return "scalene"
