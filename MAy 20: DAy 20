@@ -1,0 +1,24 @@
+
+3355. Zero Array Transformation I
+sokution:
+class Solution:
+    def isZeroArray(self, nums: List[int], queries: List[List[int]]) -> bool:
+        n = len(nums)
+        # Initialize difference array
+        diff = [0] * (n + 1)
+        
+        # Process each query to update difference array
+        for li, ri in queries:
+            diff[li] += 1
+            if ri + 1 < n:
+                diff[ri + 1] -= 1
+        
+        # Compute prefix sum to get query count for each index
+        query_count = 0
+        for i in range(n):
+            query_count += diff[i]
+            # If any index has fewer queries than its value, return False
+            if query_count < nums[i]:
+                return False
+                
+        return True
