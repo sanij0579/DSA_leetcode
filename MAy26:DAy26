@@ -1,0 +1,42 @@
+1857. Largest Color Value in a Directed Graph
+solutions:
+from collections import deque, defaultdict
+from typing import List
+
+class Solution:
+    def largestPathValue(self, colors: str, edges: List[List[int]]) -> int:
+        n = len(colors)
+        graph = defaultdict(list)
+        indegree = [0] * n
+        
+        for u, v in edges:
+            graph[u].append(v)
+            indegree[v] += 1
+        
+        # Create a 2D list to count color frequency for each node
+        color_count = [[0] * 26 for _ in range(n)]
+        queue = deque()
+        
+        # Start with nodes having 0 in-degree
+        for i in range(n):
+            if indegree[i] == 0:
+                queue.append(i)
+        
+        visited = 0
+        res = 0
+
+        while queue:
+            u = queue.popleft()
+            visited += 1
+            color_index = ord(colors[u]) - ord('a')
+            color_count[u][color_index] += 1
+            res = max(res, color_count[u][color_index])
+            
+            for v in graph[u]:
+                for i in range(26):
+                    color_count[v][i] = max(color_count[v][i], color_count[u][i])
+                indegree[v] -= 1
+                if indegree[v] == 0:
+                    queue.append(v)
+
+        return res if visited == n else -1
