@@ -1,0 +1,111 @@
+3372. Maximize the Number of Target Nodes After Connecting Trees I
+solution:
+from collections import defaultdict
+from typing import List
+
+class Solution:
+    def maxTargetNodes(self, edges1: List[List[int]], edges2: List[List[int]], k: int) -> List[int]:
+        def centroidDecomposition(root):
+            nonlocal sizes, visited, result
+            sizes = [1] * n
+            computeSizes(root, -1)
+            centroid = findCentroid(root, -1, root)
+            visited.add(centroid)
+
+            subtree_prefixes = {}
+            max_depth = 1
+
+            # Slice each arm of the centroid, record distances
+            for neighbor in adj[centroid]:
+                if neighbor in visited:
+                    continue
+                dist_counts = []
+                gatherDistances(neighbor, centroid, 1, dist_counts)
+                prefix = [0]
+                for count in dist_counts:
+                    prefix.append(prefix[-1] + count)
+                subtree_prefixes[neighbor] = prefix
+                max_depth = max(max_depth, len(prefix))
+
+            # Aggregate total reachable nodes within depth `k`
+            total = [1] * max_depth  # centroid counts as 1
+            for prefix in subtree_prefixes.values():
+                for i in range(max_depth):
+                    total[i] += prefix[min(i, len(prefix) - 1)]
+
+            result[centroid] += total[min(k, len(total) - 1)]
+
+            # Subtract contribution from own subtree when descending
+            for neighbor in subtree_prefixes:
+                countTargetPaths(neighbor, centroid, 1, total, subtree_prefixes[neighbor])
+
+            # Recurse into remaining subtrees
+            for neighbor in adj[centroid]:
+                if neighbor not in visited:
+                    centroidDecomposition(neighbor)
+
+        def computeSizes(node, parent):
+            for child in adj[node]:
+                if child == parent or child in visited:
+                    continue
+                sizes[node] += computeSizes(child, node)
+            return sizes[node]
+
+        def findCentroid(node, parent, root):
+            for child in adj[node]:
+                if child == parent or child in visited:
+                    continue
+                if sizes[child] > sizes[root] // 2:
+                    return findCentroid(child, node, root)
+            return node
+
+        def gatherDistances(node, parent, depth, count):
+            if depth > k:
+                return
+            if len(count) == depth - 1:
+                count.append(1)
+            else:
+                count[depth - 1] += 1
+            for child in adj[node]:
+                if child == parent or child in visited:
+                    continue
+                gatherDistances(child, node, depth + 1, count)
+
+        def countTargetPaths(node, parent, depth, total, exclude):
+            if depth > k:
+                return
+            result[node] += total[min(k - depth, len(total) - 1)] - exclude[min(k - depth, len(exclude) - 1)]
+            for child in adj[node]:
+                if child == parent or child in visited:
+                    continue
+                countTargetPaths(child, node, depth + 1, total, exclude)
+
+        # Phase 1: Build target tree from edges2
+        k -= 1
+        if k < 0:
+            max_targets = 0
+        else:
+            adj = defaultdict(list)
+            for u, v in edges2:
+                adj[u].append(v)
+                adj[v].append(u)
+            n = len(edges2) + 1
+            sizes = []
+            visited = set()
+            result = [0] * n
+            centroidDecomposition(0)
+            max_targets = max(result)
+
+        # Phase 2: Apply results on original tree edges1
+        k += 1
+        adj = defaultdict(list)
+        for u, v in edges1:
+            adj[u].append(v)
+            adj[v].append(u)
+        n = len(edges1) + 1
+        sizes = []
+        visited = set()
+        result = [max_targets] * n
+        centroidDecomposition(0)
+
+        return result
