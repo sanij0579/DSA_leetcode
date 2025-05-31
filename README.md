@@ -6,7 +6,7 @@ This repository contains my solutions to various **Data Structures and Algorithm
 
 ## 📚 Overview
 
-The goal of this repo is to practice and master problem-solving skills by tackling a wide range of algorithmic challenges. Each solution is implemented primarily in **[your language, e.g., Python, C++, JavaScript]** with clear explanations and comments.
+The goal of this repo is to practice and master problem-solving skills by tackling a wide range of algorithmic challenges. Each solution is implemented primarily in **Python** with clear explanations and comments.
 
 ---
 
